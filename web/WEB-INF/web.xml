@@ -5,7 +5,6 @@
          version="4.0">
     <display-name>todos</display-name>
     <welcome-file-list>
-        <welcome-file>index.html</welcome-file>
-        <welcome-file>index.jsp</welcome-file>
+        <welcome-file>/welcome.jsp</welcome-file>
     </welcome-file-list>
 </web-app>

@@ -9,7 +9,7 @@ public class Todo {
     /**
      * 代办事项id
      */
-    private String id;
+    private int id;
     /**
      * 代办事项内容
      */
@@ -29,18 +29,18 @@ public class Todo {
     public Todo() {
     }
 
-    public Todo(String id, String content, String status, long date) {
+    public Todo(int id, String content, String status, long date) {
         this.id = id;
         this.content = content;
         this.status = status;
         this.date = date;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -66,5 +66,10 @@ public class Todo {
 
     public void setDate(long date) {
         this.date = date;
+    }
+
+    @Override
+    public String toString() {
+        return "Todo [id="+id+", content="+content+", status="+status+", date="+date+"]";
     }
 }

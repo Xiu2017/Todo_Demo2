@@ -6,6 +6,7 @@ import java.sql.*;
 import java.util.List;
 
 /**
+ * 通用的Dao
  * @author xiu
  * @date 2019/1/8 14:12
  */
