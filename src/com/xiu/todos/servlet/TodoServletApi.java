@@ -1,8 +1,10 @@
 package com.xiu.todos.servlet;
 
+import com.google.gson.Gson;
 import com.xiu.todos.dao.TodoDao;
 import com.xiu.todos.dao.impl.TodoDaoImpl;
 import com.xiu.todos.entity.Todo;
+import com.xiu.todos.util.Utils;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -10,14 +12,15 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 
 /**
  * @author xiu
- * @date 2019/1/8 16:55
+ * @date 2019/1/10 10:27
  */
-@WebServlet("/TodoServlet")
-public class TodoServlet extends HttpServlet {
+@WebServlet("/TodoServletApi")
+public class TodoServletApi extends HttpServlet {
 
     private final static String ENCODING = "UTF-8";
 
@@ -25,20 +28,17 @@ public class TodoServlet extends HttpServlet {
      * 自定义分发请求
      * @param request 请求体
      * @param response 响应体
-     * @throws ServletException Servlet异常
-     * @throws IOException IO异常
      */
     @Override
-    protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        //super.service(request, response);
+    protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        //允许跨域请求
+        Utils.allowCORS(response);
         //设置编码
         request.setCharacterEncoding(ENCODING);
         //自定义分发请求
         String method = request.getParameter("method");
         switch (method){
             case "all":
-            case "active":
-            case "completed":
                 listTodo(request, response);
                 break;
             case "insert":
@@ -57,7 +57,6 @@ public class TodoServlet extends HttpServlet {
                 toggleAll(request, response);
                 break;
             default:
-                listTodo(request, response);
                 break;
         }
     }
@@ -67,11 +66,11 @@ public class TodoServlet extends HttpServlet {
      * @param request 请求体
      * @param response 相应体
      */
-    private void listTodo(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void listTodo(HttpServletRequest request, HttpServletResponse response) throws IOException {
         TodoDao todoDao = new TodoDaoImpl();
         List<Todo> todos = todoDao.listTodo();
-        request.setAttribute("todos", todos);
-        request.getRequestDispatcher("index.jsp").forward(request, response);
+        //发送数据
+        sendResult(response, todos);
     }
 
     /**
@@ -84,8 +83,9 @@ public class TodoServlet extends HttpServlet {
         Todo todo = new Todo();
         todo.setStatus(status);
         List<Todo> todos = todoDao.listTodoByQuery(todo);
-        request.setAttribute("todos", todos);
-        request.getRequestDispatcher("index.jsp").forward(request, response);
+
+        //发送数据
+        sendResult(response, todos);
     }
 
     /**
@@ -104,10 +104,7 @@ public class TodoServlet extends HttpServlet {
         int result = todoDao.insertTodo(todo);
         System.out.println("受影响行数："+result);
 
-        //刷新数据
-        String last = request.getParameter("last");
-        String url = request.getContextPath() + "/TodoServlet?method="+last;
-        response.sendRedirect(url);
+        sendResult(response, request);
     }
 
     /**
@@ -134,10 +131,7 @@ public class TodoServlet extends HttpServlet {
         int result = todoDao.updateTodo(todo);
         System.out.println("受影响行数："+result);
 
-        //刷新数据
-        String last = request.getParameter("last");
-        String url = request.getContextPath() + "/TodoServlet?method="+last;
-        response.sendRedirect(url);
+        sendResult(response, request);
     }
 
     /**
@@ -147,25 +141,22 @@ public class TodoServlet extends HttpServlet {
      */
     private void deleteTodo(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String id = request.getParameter("id");
-        String last = request.getParameter("last");
         TodoDao todoDao = new TodoDaoImpl();
         int result = todoDao.deleteTodoById(id);
         System.out.println("受影响行数："+result);
-        String url = request.getContextPath() + "/TodoServlet?method="+last;
-        response.sendRedirect(url);
+
+        sendResult(response, result);
     }
 
     private void deleteAllCompleted(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String last = request.getParameter("last");
         TodoDao todoDao = new TodoDaoImpl();
         int result = todoDao.deleteTodoByStatus(Todo.STATUS_COMPLETED);
         System.out.println("受影响行数："+result);
-        String url = request.getContextPath() + "/TodoServlet?method="+last;
-        response.sendRedirect(url);
+
+        sendResult(response, result);
     }
 
     private void toggleAll(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String last = request.getParameter("last");
         TodoDao todoDao = new TodoDaoImpl();
         Todo todo = new Todo();
         todo.setStatus(Todo.STATUS_ACTIVE);
@@ -177,8 +168,16 @@ public class TodoServlet extends HttpServlet {
             result = todoDao.updateAllTodoStatus(Todo.STATUS_ACTIVE);
         }
         System.out.println("受影响行数："+result);
-        String url = request.getContextPath() + "/TodoServlet?method="+last;
-        response.sendRedirect(url);
+
+        sendResult(response, result);
     }
 
+    private void sendResult(HttpServletResponse response, Object data) throws IOException {
+        //直接输出结果
+        response.setContentType("text/html;charset=utf-8");
+        PrintWriter out=response.getWriter();
+        String jsonStr = new Gson().toJson(data);
+        out.write(jsonStr);
+        out.close();
+    }
 }

@@ -23,7 +23,7 @@
     </header>
     <section class="main">
         <input id="toggle-all" class="toggle-all" type="checkbox">
-        <label onclick="window.location.href='${pageContext.request.contextPath}/TodoServlet?method=toggleAll&last=<%=method%>'">Mark all as complete</label>
+        <label class="toggle-label" onclick="window.location.href='${pageContext.request.contextPath}/TodoServlet?method=toggleAll&last=<%=method%>'">Mark all as complete</label>
         <ul class="todo-list">
             <%
                 //获取请求数据
@@ -63,11 +63,11 @@
                                 <%
                             }
                         %>>
-                    <label><%=todo.getContent()%>
-                    </label>
+                    <label class="content" ondblclick="editTodo(this)"><%=todo.getContent()%></label>
                     <button class="destroy" onclick="window.location.href='<%=request.getContextPath()%>/TodoServlet?method=delete&id=<%=todo.getId()%>&last=<%=method%>'"></button>
                 </div>
-                <input class="edit" type="text">
+                <input class="todo-id" type="hidden" value="<%=todo.getId()%>" />
+                <input class="edit" type="text" value="<%=todo.getContent()%>" onblur="doneEdit(this)" />
             </li>
             <%
                     }
@@ -125,6 +125,10 @@
         }
     %>
 </section>
+<script>
+    //记录请求状态
+    var method = "<%=method%>";
+</script>
 <script src="${pageContext.request.contextPath}/js/main.js"></script>
 </body>
 </html>
