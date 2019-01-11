@@ -155,6 +155,11 @@ public class TodoServlet extends HttpServlet {
         response.sendRedirect(url);
     }
 
+    /**
+     * 删除所有已完成待办事项
+     * @param request 请求体
+     * @param response 响应体
+     */
     private void deleteAllCompleted(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String last = request.getParameter("last");
         TodoDao todoDao = new TodoDaoImpl();
@@ -164,6 +169,11 @@ public class TodoServlet extends HttpServlet {
         response.sendRedirect(url);
     }
 
+    /**
+     * 更改全部Todo状态为完成或未完成
+     * @param request 请求体
+     * @param response 响应体
+     */
     private void toggleAll(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String last = request.getParameter("last");
         TodoDao todoDao = new TodoDaoImpl();

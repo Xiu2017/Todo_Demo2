@@ -81,8 +81,9 @@ public class TodoDaoImpl implements TodoDao {
             count = resultSet.getInt("count");
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            BaseDao.close();  //正确关闭连接
         }
-        BaseDao.close();  //正确关闭连接
         return count;
     }
 
